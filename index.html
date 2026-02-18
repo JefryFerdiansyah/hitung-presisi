@@ -5,48 +5,104 @@
 <title>Statistik 10 Data</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial;
-    background:#eee;
-    padding:30px;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#4facfe,#00f2fe);
+    margin:0;
+    padding:15px;
 }
 
 .container{
     background:white;
     padding:20px;
-    max-width:700px;
+    max-width:600px;
     margin:auto;
-    border-radius:10px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+#inputs{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:15px;
 }
 
 input{
-    width:80px;
-    margin:4px;
+    padding:12px;
+    font-size:16px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    width:100%;
 }
 
 button{
-    padding:8px 20px;
-    margin-top:15px;
+    width:100%;
+    padding:14px;
+    font-size:16px;
+    background:#4facfe;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#2f80ed;
+}
+
+.result{
+    background:#f6f9ff;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
+    margin-top:15px;
+    font-size:14px;
+}
+
+th{
+    background:#4facfe;
+    color:white;
 }
 
 th,td{
-    border:1px solid #ccc;
+    border:1px solid #ddd;
     padding:6px;
     text-align:center;
 }
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+/* HP kecil */
+@media(max-width:480px){
+    #inputs{
+        grid-template-columns:1fr;
+    }
+}
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-<h2>FORM PRESISI TIMBANGAN MINGGUAN</h2>
+<h2>Perhitungan Presisi Timbangan Mingguan SEMISOLID</h2>
 
 <div id="inputs"></div>
 
@@ -54,6 +110,7 @@ th,td{
 
 <p><b>b (Rata-rata):</b> <span id="b"></span></p>
 
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -64,11 +121,14 @@ th,td{
 </thead>
 <tbody id="hasil"></tbody>
 </table>
+</div>
 
+<div class="result">
 <p><b>e (Σ d):</b> <span id="e"></span></p>
 <p><b>f (Varian):</b> <span id="f"></span></p>
 <p><b>g (√f):</b> <span id="g"></span></p>
 <p><b>h (Evaluasi):</b> <span id="h"></span></p>
+</div>
 
 </div>
 
@@ -134,4 +194,3 @@ function hitung(){
 
 </body>
 </html>
-
