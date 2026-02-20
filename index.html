@@ -155,9 +155,12 @@ function hitung(){
 
     // b = rata-rata
     let sum=a.reduce((x,y)=>x+y,0);
-    let b=sum/10;
-    document.getElementById("b").innerText=b.toFixed(3);
+    let b = sum / 10;
 
+    // truncate 3 angka tanpa pembulatan
+    let bTrunc = Math.trunc(b * 1000) / 1000;
+
+    document.getElementById("b").innerText = bTrunc.toFixed(3);
     let tbody=document.getElementById("hasil");
     tbody.innerHTML="";
 
@@ -195,7 +198,6 @@ function hitung(){
 
 </body>
 </html>
-
 
 
 
