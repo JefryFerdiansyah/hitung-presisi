@@ -1,8 +1,53 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$b = $e = $f = $g = $h = null;
+$hasil = [];
+$a = [];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    for ($i = 0; $i < 10; $i++) {
+        if (!isset($_POST["a$i"]) || $_POST["a$i"] === "") {
+            die("Semua angka harus diisi!");
+        }
+        $a[$i] = round(floatval($_POST["a$i"]), 3);
+    }
+
+    // b = rata-rata
+    $sum = array_sum($a);
+    $b = round($sum / 10, 3);
+
+    $e = 0;
+
+    for ($i = 0; $i < 10; $i++) {
+        $c = $b - $a[$i];
+        $d = $c * $c;
+        $e += $d;
+
+        $hasil[] = [
+            "a" => $a[$i],
+            "c" => $c,
+            "d" => $d
+        ];
+    }
+
+    // f = varian
+    $f = $e / 10;
+
+    // g = akar varian
+    $g = sqrt($f);
+
+    // h = evaluasi
+    $h = 2 * $g;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perhitungan PRESISI Timbangan Mingguan SEMISOLID</title>
+<title>Statistik 10 Data</title>
 
 <style>
 * {
@@ -19,8 +64,7 @@ body {
 .container{
     background:white;
     padding:20px;
-    max-width:700px;
-    width:100%;
+    max-width:600px;
     margin:auto;
     border-radius:15px;
     box-shadow:0 10px 25px rgba(0,0,0,.15);
@@ -105,11 +149,27 @@ th,td{
 <div class="container">
 <h2>Perhitungan Presisi Timbangan Mingguan SEMISOLID</h2>
 
-<div id="inputs"></div>
+<form method="POST">
 
-<button onclick="hitung()">Hitung</button>
+<div id="inputs">
+<?php
+for($i=0;$i<10;$i++){
+    $value = isset($_POST["a$i"]) ? $_POST["a$i"] : "";
+    echo "<input type='number' step='0.001' name='a$i' placeholder='Hasil Timbang ".($i+1)."' value='$value'>";
+}
+?>
+</div>
 
-<p><b>b (Rata-rata):</b> <span id="b"></span></p>
+<button type="submit">Hitung</button>
+</form>
+
+<?php 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+if(isset($b)): ?>
+
+<p><b>b (Rata-rata):</b> <?= number_format($b,3) ?></p>
 
 <div class="table-wrapper">
 <table>
@@ -120,83 +180,27 @@ th,td{
 <th>d = c²</th>
 </tr>
 </thead>
-<tbody id="hasil"></tbody>
+<tbody>
+<?php foreach($hasil as $row): ?>
+<tr>
+<td><?= $row["a"] ?></td>
+<td><?= number_format($row["c"],3) ?></td>
+<td><?= number_format($row["d"],6) ?></td>
+</tr>
+<?php endforeach; ?>
+</tbody>
 </table>
 </div>
 
 <div class="result">
-<p><b>e (Σ d):</b> <span id="e"></span></p>
-<p><b>f (Varian):</b> <span id="f"></span></p>
-<p><b>g (√f):</b> <span id="g"></span></p>
-<p><b>h (Evaluasi):</b> <span id="h"></span></p>
+<p><b>e (Σ d):</b> <?= number_format($e,6) ?></p>
+<p><b>f (Varian):</b> <?= number_format($f,7) ?></p>
+<p><b>g (√f):</b> <?= number_format($g,7) ?></p>
+<p><b>h (Evaluasi):</b> <?= number_format($h,7) ?></p>
 </div>
 
+<?php endif; ?>
+
 </div>
-
-<script>
-// buat 10 input otomatis
-const inputs = document.getElementById("inputs");
-for(let i=0;i<10;i++){
-    inputs.innerHTML += `<input type="number" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
-}
-
-function hitung(){
-
-    let a=[];
-
-    for(let i=0;i<10;i++){
-        let v=parseFloat(document.getElementById("a"+i).value);
-        if(isNaN(v)){
-            alert("Semua angka harus diisi!");
-            return;
-        }
-        a.push(v);
-    }
-
-    // b = rata-rata
-    let sum=a.reduce((x,y)=>x+y,0);
-    let b=sum/10;
-    document.getElementById("b").innerText=b.toFixed(3);
-
-    let tbody=document.getElementById("hasil");
-    tbody.innerHTML="";
-
-    let e=0;
-
-    for(let i=0;i<10;i++){
-        let c=b-a[i];
-        let d=c*c;
-        e+=d;
-
-        tbody.innerHTML+=`
-        <tr>
-        <td>${a[i]}</td>
-        <td>${c.toFixed(3)}</td>
-        <td>${d.toFixed(6)}</td>
-        </tr>
-        `;
-    }
-
-    // f = varian
-    let f=e/10;
-
-    // g = akar varian
-    let g=Math.sqrt(f);
-
-    // h = evaluasi
-    let h=2*g/100*100;
-
-    document.getElementById("e").innerText=e.toFixed(6);
-    document.getElementById("f").innerText=f.toFixed(7);
-    document.getElementById("g").innerText=g.toFixed(7);
-    document.getElementById("h").innerText=h.toFixed(7);
-}
-</script>
-
 </body>
 </html>
-
-
-
-
-
