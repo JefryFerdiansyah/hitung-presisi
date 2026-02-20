@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perhitungan PRESISI Timbangan Mingguan SEMISOLID</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#4facfe,#00f2fe);
+    margin:0;
+    padding:15px;
+}
+
+.container{
+    background:white;
+    padding:20px;
+    max-width:700px;
+    width:100%;
+    margin:auto;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+#inputs{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:15px;
+}
+
+input{
+    padding:12px;
+    font-size:16px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    width:100%;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    font-size:16px;
+    background:#4facfe;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#2f80ed;
+}
+
+.result{
+    background:#f6f9ff;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:14px;
+}
+
+th{
+    background:#4facfe;
+    color:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:6px;
+    text-align:center;
+}
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+/* HP kecil */
+@media(max-width:480px){
+    #inputs{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<h2>Perhitungan Presisi Timbangan Mingguan SEMISOLID</h2>
+
+<div id="inputs"></div>
+
+<button onclick="hitung()">Hitung</button>
+
+<p><b>b (Rata-rata):</b> <span id="b"></span></p>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>c = b-a</th>
+<th>d = c²</th>
+</tr>
+</thead>
+<tbody id="hasil"></tbody>
+</table>
+</div>
+
+<div class="result">
+<p><b>e (Σ d):</b> <span id="e"></span></p>
+<p><b>f (Varian):</b> <span id="f"></span></p>
+<p><b>g (√f):</b> <span id="g"></span></p>
+<p><b>h (Evaluasi):</b> <span id="h"></span></p>
+</div>
+
+</div>
+
+<script>
+// buat 10 input otomatis
+const inputs = document.getElementById("inputs");
+for(let i=0;i<10;i++){
+    inputs.innerHTML += `<input type="number" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
+}
+
+function hitung(){
+
+    let a=[];
+
+    for(let i=0;i<10;i++){
+        let v=parseFloat(document.getElementById("a"+i).value);
+        if(isNaN(v)){
+            alert("Semua angka harus diisi!");
+            return;
+        }
+        a.push(v);
+    }
+
+    // b = rata-rata
+    let sum=a.reduce((x,y)=>x+y,0);
+    let b=sum/10;
+    document.getElementById("b").innerText=b.toFixed(3);
+
+    let tbody=document.getElementById("hasil");
+    tbody.innerHTML="";
+
+    let e=0;
+
+    for(let i=0;i<10;i++){
+        let c=b-a[i];
+        let d=c*c;
+        e+=d;
+
+        tbody.innerHTML+=`
+        <tr>
+        <td>${a[i]}</td>
+        <td>${c.toFixed(3)}</td>
+        <td>${d.toFixed(6)}</td>
+        </tr>
+        `;
+    }
+
+    // f = varian
+    let f=e/10;
+
+    // g = akar varian
+    let g=Math.sqrt(f);
+
+    // h = evaluasi
+    let h=2*g/100*100;
+
+    document.getElementById("e").innerText=e.toFixed(6);
+    document.getElementById("f").innerText=f.toFixed(7);
+    document.getElementById("g").innerText=g.toFixed(7);
+    document.getElementById("h").innerText=h.toFixed(7);
+}
+</script>
+
+</body>
+</html>
+
+
+
+
