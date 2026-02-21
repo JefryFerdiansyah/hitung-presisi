@@ -107,6 +107,8 @@ th,td{
 
 <div id="inputs"></div>
 
+<p><input type="number" step="any" id="pembagi" placeholder="Masukkan Berat Timbangan" required><p/>
+
 <button onclick="hitung()">Hitung</button>
 
 <p><b>b (Rata-rata):</b> <span id="b"></span></p>
@@ -140,6 +142,11 @@ for(let i=0;i<10;i++){
     inputs.innerHTML += `<input type="number" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
 }
 
+function truncate(num, decimalPlaces){
+    let factor = Math.pow(10, decimalPlaces);
+    return Math.trunc(num * factor) / factor;
+}
+
 function hitung(){
 
     let a=[];
@@ -167,18 +174,23 @@ function hitung(){
     let e=0;
 
     for(let i=0;i<10;i++){
-        let c=b-a[i];
-        let d=c*c;
-        e+=d;
 
-        tbody.innerHTML+=`
-        <tr>
-        <td>${a[i]}</td>
-        <td>${c.toFixed(3)}</td>
-        <td>${d.toFixed(6)}</td>
-        </tr>
-        `;
-    }
+    // C truncate 3 angka tanpa pembulatan
+    let c = truncate(bTrunc - a[i], 3);
+
+    // D truncate 6 angka tanpa pembulatan
+    let d = truncate(c * c, 6);
+
+    e += d;
+
+    tbody.innerHTML+=`
+    <tr>
+    <td>${a[i]}</td>
+    <td>${c.toFixed(3)}</td>
+    <td>${d.toFixed(6)}</td>
+    </tr>
+    `;
+}
 
     // f = varian
     let f=e/10;
@@ -187,7 +199,14 @@ function hitung(){
     let g=Math.sqrt(f);
 
     // h = evaluasi
-    let h=2*g/100*100;
+    let pembagi = parseFloat(document.getElementById("pembagi").value);
+
+if (isNaN(pembagi) || pembagi === 0) {
+    alert("Nilai pembagi harus diisi dan tidak boleh 0!");
+    return;
+}
+
+let h = (2 * g / pembagi) * 100;
 
     document.getElementById("e").innerText=e.toFixed(6);
     document.getElementById("f").innerText=f.toFixed(7);
