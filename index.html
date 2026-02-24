@@ -90,6 +90,53 @@ th,td{
     overflow-x:auto;
 }
 
+.hasil-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 0;
+    border-bottom:1px solid #e0e6f5;
+    font-size:15px;
+}
+
+.hasil-item:last-child{
+    border-bottom:none;
+}
+
+.hasil-label{
+    font-weight:bold;
+}
+
+.hasil-value{
+    font-family:monospace;
+}
+
+/* Style khusus dropdown pembagi */
+#pembagi{
+    padding:12px;
+    font-size:16px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    width:100%;
+    background:white;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+}
+
+/* Hover effect */
+#pembagi:hover{
+    border-color:#4facfe;
+}
+
+/* Focus effect */
+#pembagi:focus{
+    outline:none;
+    border-color:#2f80ed;
+    box-shadow:0 0 5px rgba(79,172,254,0.5);
+}
+
 /* HP kecil */
 @media(max-width:480px){
     #inputs{
@@ -107,11 +154,22 @@ th,td{
 
 <div id="inputs"></div>
 
-<p><input type="number" step="any" id="pembagi" placeholder="Masukkan Berat Timbangan" required><p/>
+<p>
+  <select id="pembagi" required>
+    <option value="" disabled selected>Pilih Berat Tiimbangan</option>
+    <option value="100">100 gram</option>
+    <option value="20">20 Kg</option>
+  </select>
+</p>
 
 <button onclick="hitung()">Hitung</button>
 
-<p><b>b (Rata-rata):</b> <span id="b"></span></p>
+<div class="result">
+    <div class="hasil-item">
+        <div class="hasil-label">b (Rata-rata)</div>
+        <div class="hasil-value" id="b"></div>
+    </div>
+</div>
 
 <div class="table-wrapper">
 <table>
@@ -127,10 +185,27 @@ th,td{
 </div>
 
 <div class="result">
-<p><b>e (Σ d):</b> <span id="e"></span></p>
-<p><b>f (Varian):</b> <span id="f"></span></p>
-<p><b>g (√f):</b> <span id="g"></span></p>
-<p><b>h (Evaluasi):</b> <span id="h"></span></p>
+
+    <div class="hasil-item">
+        <div class="hasil-label">e (Σ d)</div>
+        <div class="hasil-value" id="e"></div>
+    </div>
+
+    <div class="hasil-item">
+        <div class="hasil-label">f (Varian)</div>
+        <div class="hasil-value" id="f"></div>
+    </div>
+
+    <div class="hasil-item">
+        <div class="hasil-label">g (√f)</div>
+        <div class="hasil-value" id="g"></div>
+    </div>
+
+    <div class="hasil-item">
+        <div class="hasil-label">h (Evaluasi)</div>
+        <div class="hasil-value" id="h"></div>
+    </div>
+
 </div>
 
 </div>
