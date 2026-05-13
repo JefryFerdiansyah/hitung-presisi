@@ -217,17 +217,6 @@ for(let i=0;i<10;i++){
     inputs.innerHTML += `<input type="text" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
 }
 
-for (let i = 0; i < 10; i++) {
-    document.getElementById(`a${i}`).addEventListener("input", function () {
-        if (this.value.includes(".")) {
-            alert("Input harus menggunakan koma (,) bukan titik (.)");
-
-            // otomatis ubah titik jadi koma
-            this.value = this.value.replace(/\./g, ",");
-        }
-    });
-}
-
 function truncate(num, decimalPlaces){
     let factor = Math.pow(10, decimalPlaces);
     return Math.trunc(num * factor) / factor;
