@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Tube & Data Acuan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* Background gradasi lembut */
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px 20px;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .main-container {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        /* CSS Kalkulator (Card Modern) */
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            border-top: 5px solid #007bff;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        h3 {
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dce1e6;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8faff;
+            transition: all 0.3s ease;
+        }
+        /* Efek saat kolom di-klik */
+        select:focus, input:focus {
+            border-color: #80bdff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,.25);
+            background-color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+            font-family: 'Poppins', sans-serif;
+            margin-top: 10px;
+        }
+        /* Efek saat tombol disentuh mouse */
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,123,255,0.4);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f1f8ff;
+            border-left: 6px solid #28a745;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #444;
+        }
+        .result strong {
+            color: #222;
+        }
+        .total-highlight {
+            font-weight: 700;
+            color: #d9534f;
+            font-size: 19px !important;
+            margin-top: 15px !important;
+        }
+
+        /* CSS Tabel Acuan */
+        .table-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .table-wrapper {
+            border-radius: 10px;
+            overflow: hidden; /* Agar sudut tabel ikut membulat */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+        }
+        th, td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #444;
+        }
+        /* Efek hover pada baris tabel */
+        tr:not(:first-child):not(:nth-child(2)):hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Warna Header Sesuai Gambar dengan penyesuaian estetika */
+        .header-tamanaco th { background-color: #FFF200; color: #333; font-size: 15px; border-bottom: none;}
+        .sub-tamanaco th { background-color: #fff985; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+        
+        .header-impact th { background-color: #F79646; color: #fff; font-size: 15px; border-bottom: none;}
+        .sub-impact th { background-color: #fabc8c; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+        
+        .header-suryya th { background-color: #92D050; color: #fff; font-size: 15px; border-bottom: none;}
+        .sub-suryya th { background-color: #c4e89f; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    
+    <div class="calculator-card">
+        <h2>📦 Kalkulator Hitung Tube</h2>
+        
+        <div class="form-group">
+            <label for="kategori">Kategori Tube</label>
+            <select id="kategori">
+                <option value="TAMANACO">TAMANACO</option>
+                <option value="IMPACT">IMPACT</option>
+                <option value="SURYYA TUBAL INDONESIA">SURYYA TUBAL INDONESIA</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="produk">Produk Obat</label>
+            <select id="produk">
+                <option value="Miconazole">Miconazole</option>
+                <option value="Gentamycin">Gentamycin</option>
+                <option value="Hydrocortison">Hydrocortison</option>
+                <option value="Betamethasone">Betamethasone</option>
+                <option value="Betason CR">Betason CR</option>
+                <option value="Betason N">Betason N</option>
+                <option value="Protofen">Protofen</option>
+                <option value="Permethrine">Permethrine</option>
+                <option value="Scabicid">Scabicid</option>
+                <option value="Ketoconazole">Ketoconazole</option>
+                <option value="Antihemoroid">Antihemoroid</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="inputBox">Jumlah BOX (Input)</label>
+            <input type="number" id="inputBox" placeholder="Masukkan angka, contoh: 2" min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="inputDus">Jumlah DUS (Input)</label>
+            <input type="number" id="inputDus" placeholder="Masukkan angka, contoh: 2" min="0">
+        </div>
+
+        <button onclick="hitung()">Hitung Hasil Sekarang</button>
+
+        <div class="result" id="hasilDiv">
+            <p><strong>📊 Rincian Perhitungan:</strong></p>
+            <p id="hasilBox"></p>
+            <p id="hasilDus"></p>
+            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+            <p class="total-highlight" id="hasilTotal"></p>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <h3>📋 Tabel Data Acuan</h3>
+        <div class="tables-grid">
+            
+            <div class="table-wrapper">
+                <table>
+                    <tr class="header-tamanaco">
+                        <th colspan="3">TAMANACO</th>
+                    </tr>
+                    <tr class="sub-tamanaco">
+                        <th>Produk</th><th>BOX</th><th>DUS</th>
+                    </tr>
+                    <tr><td>Miconazole</td><td>5590</td><td>559</td></tr>
+                    <tr><td>Gentamycin</td><td>7750</td><td>775</td></tr>
+                    <tr><td>Hydrocortison</td><td>7750</td><td>775</td></tr>
+                    <tr><td>Betamethasone</td><td>7750</td><td>775</td></tr>
+                    <tr><td>Betason CR</td><td>7750</td><td>775</td></tr>
+                    <tr><td>Betason N</td><td>7750</td><td>775</td></tr>
+                    <tr><td>Protofen</td><td>10000</td><td>1000</td></tr>
+                    <tr><td>Permethrine</td><td>5590</td><td>559</td></tr>
+                    <tr><td>Scabicid</td><td>5590</td><td>559</td></tr>
+                    <tr><td>Ketoconazole</td><td>5590</td><td>559</td></tr>
+                    <tr><td>Antihemoroid</td><td>10000</td><td>1000</td></tr>
+                </table>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <tr class="header-impact">
+                        <th colspan="3">IMPACT</th>
+                    </tr>
+                    <tr class="sub-impact">
+                        <th>Produk</th><th>BOX</th><th>DUS</th>
+                    </tr>
+                    <tr><td>Miconazole</td><td>2262</td><td>754</td></tr>
+                    <tr><td>Gentamycin</td><td>3162</td><td>1054</td></tr>
+                    <tr><td>Hydrocortison</td><td>4216</td><td>1054</td></tr>
+                    <tr><td>Betamethasone</td><td>4216</td><td>1054</td></tr>
+                    <tr><td>Betason CR</td><td>4216</td><td>1054</td></tr>
+                    <tr><td>Betason N</td><td>4216</td><td>1054</td></tr>
+                    <tr><td>Protofen</td><td>10000</td><td>1000</td></tr>
+                    <tr><td>Permethrine</td><td>2262</td><td>754</td></tr>
+                    <tr><td>Scabicid</td><td>2262</td><td>754</td></tr>
+                    <tr><td>Ketoconazole</td><td>2262</td><td>754</td></tr>
+                    <tr><td>Antihemoroid</td><td>10000</td><td>1000</td></tr>
+                </table>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <tr class="header-suryya">
+                        <th colspan="3">SURYYA TUBAL INDONESIA</th>
+                    </tr>
+                    <tr class="sub-suryya">
+                        <th>Produk</th><th>BOX</th><th>DUS</th>
+                    </tr>
+                    <tr><td>Miconazole</td><td>-</td><td>-</td></tr>
+                    <tr><td>Gentamycin</td><td>3750</td><td>750</td></tr>
+                    <tr><td>Hydrocortison</td><td>3750</td><td>750</td></tr>
+                    <tr><td>Betamethasone</td><td>3750</td><td>750</td></tr>
+                    <tr><td>Betason CR</td><td>3750</td><td>750</td></tr>
+                    <tr><td>Betason N</td><td>3750</td><td>750</td></tr>
+                    <tr><td>Protofen</td><td>10000</td><td>1000</td></tr>
+                    <tr><td>Permethrine</td><td>-</td><td>-</td></tr>
+                    <tr><td>Scabicid</td><td>-</td><td>-</td></tr>
+                    <tr><td>Ketoconazole</td><td>-</td><td>-</td></tr>
+                    <tr><td>Antihemoroid</td><td>10000</td><td>1000</td></tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const dataMaster = {
+        "TAMANACO": {
+            "Miconazole": { box: 5590, dus: 559 },
+            "Gentamycin": { box: 7750, dus: 775 },
+            "Hydrocortison": { box: 7750, dus: 775 },
+            "Betamethasone": { box: 7750, dus: 775 },
+            "Betason CR": { box: 7750, dus: 775 },
+            "Betason N": { box: 7750, dus: 775 },
+            "Protofen": { box: 10000, dus: 1000 },
+            "Permethrine": { box: 5590, dus: 559 },
+            "Scabicid": { box: 5590, dus: 559 },
+            "Ketoconazole": { box: 5590, dus: 559 },
+            "Antihemoroid": { box: 10000, dus: 1000 }
+        },
+        "IMPACT": {
+            "Miconazole": { box: 2262, dus: 754 },
+            "Gentamycin": { box: 3162, dus: 1054 },
+            "Hydrocortison": { box: 4216, dus: 1054 },
+            "Betamethasone": { box: 4216, dus: 1054 },
+            "Betason CR": { box: 4216, dus: 1054 },
+            "Betason N": { box: 4216, dus: 1054 },
+            "Protofen": { box: 10000, dus: 1000 },
+            "Permethrine": { box: 2262, dus: 754 },
+            "Scabicid": { box: 2262, dus: 754 },
+            "Ketoconazole": { box: 2262, dus: 754 },
+            "Antihemoroid": { box: 10000, dus: 1000 }
+        },
+        "SURYYA TUBAL INDONESIA": {
+            "Miconazole": { box: 0, dus: 0 },
+            "Gentamycin": { box: 3750, dus: 750 },
+            "Hydrocortison": { box: 3750, dus: 750 },
+            "Betamethasone": { box: 3750, dus: 750 },
+            "Betason CR": { box: 3750, dus: 750 },
+            "Betason N": { box: 3750, dus: 750 },
+            "Protofen": { box: 10000, dus: 1000 },
+            "Permethrine": { box: 0, dus: 0 },
+            "Scabicid": { box: 0, dus: 0 },
+            "Ketoconazole": { box: 0, dus: 0 },
+            "Antihemoroid": { box: 10000, dus: 1000 }
+        }
+    };
+
+    function hitung() {
+        const kategori = document.getElementById("kategori").value;
+        const produk = document.getElementById("produk").value;
+        const inputBox = parseInt(document.getElementById("inputBox").value) || 0;
+        const inputDus = parseInt(document.getElementById("inputDus").value) || 0;
+
+        const referensi = dataMaster[kategori][produk];
+        const hasilDiv = document.getElementById("hasilDiv");
+
+        if (referensi.box === 0 && referensi.dus === 0) {
+            document.getElementById("hasilBox").innerHTML = `<span style="color: #dc3545;">⚠️ Data tidak tersedia untuk produk <b>${produk}</b> di kategori <b>${kategori}</b></span>`;
+            document.getElementById("hasilDus").innerText = "";
+            document.getElementById("hasilTotal").innerText = "";
+            
+            hasilDiv.style.borderLeftColor = "#dc3545"; 
+            hasilDiv.style.backgroundColor = "#fff3f4";
+            hasilDiv.style.display = "block";
+            return;
+        }
+
+        const totalBox = inputBox * referensi.box;
+        const totalDus = inputDus * referensi.dus;
+        const totalSemua = totalBox + totalDus;
+
+        document.getElementById("hasilBox").innerHTML = `Total BOX: <b>${inputBox}</b> × ${referensi.box} = <b>${totalBox.toLocaleString('id-ID')}</b>`;
+        document.getElementById("hasilDus").innerHTML = `Total DUS: <b>${inputDus}</b> × ${referensi.dus} = <b>${totalDus.toLocaleString('id-ID')}</b>`;
+        document.getElementById("hasilTotal").innerText = `Grand Total Keseluruhan: ${totalSemua.toLocaleString('id-ID')}`;
+
+        hasilDiv.style.borderLeftColor = "#28a745"; 
+        hasilDiv.style.backgroundColor = "#f1f8ff";
+        hasilDiv.style.display = "block";
+    }
+</script>
+
+</body>
+</html>
