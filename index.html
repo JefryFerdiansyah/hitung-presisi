@@ -3,142 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Utama Kalkulator</title>
+    <title>Sistem Kalkulasi SEMISOLID</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* --- RESET & GLOBAL DASAR --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Poppins', sans-serif;
-            /* Background gradasi yang sama dengan halaman sebelumnya */
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 40px 20px;
             color: #333;
-            min-height: 100vh;
-            margin: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .dashboard-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-width: 800px;
-            width: 100%;
-            box-sizing: border-box;
-            border-top: 5px solid #007bff;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-top: 0;
-            font-weight: 700;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 35px;
-            font-size: 15px;
-        }
-
-        /* Desain Grid untuk Menu */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        /* Desain Kartu Menu (Tombol Link) */
-        .menu-item {
-            background-color: #f8faff;
-            border: 1px solid #dce1e6;
-            border-radius: 12px;
-            padding: 25px 20px;
-            text-decoration: none;
-            color: #333;
-            text-align: center;
-            transition: all 0.3s ease;
+        /* --- SIDEBAR NAVIGATION --- */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: fixed;
+            height: 100vh;
+            transition: 0.3s;
+            z-index: 1000;
         }
-
-        .menu-item:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 20px rgba(0,123,255,0.15);
-            border-color: #007bff;
-            background-color: #fff;
-        }
-
-        .menu-icon {
-            font-size: 45px;
-            margin-bottom: 15px;
-        }
-
-        .menu-title {
-            font-weight: 600;
-            font-size: 18px;
-            color: #007bff;
-            margin-bottom: 8px;
-        }
-
-        .menu-desc {
-            font-size: 13px;
-            color: #666;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* Footer Info */
-        .footer-info {
+        .sidebar-header {
+            padding: 20px;
             text-align: center;
-            margin-top: 40px;
-            font-size: 13px;
-            color: #888;
+            background: #1a252f;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        .sidebar-menu li {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-menu li:hover, .sidebar-menu li.active-nav {
+            background: #34495e;
+            border-left: 4px solid #007bff;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px 20px;
+            transition: 0.3s;
+            width: calc(100% - 250px);
+        }
+        
+        .menu-toggle-btn {
+            display: none;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* --- SECTION (PAGE) HIDING LOGIC --- */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+        .page-section.active-section {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- CSS GABUNGAN DARI TUBE & PRESISI --- */
+        .dashboard-card, .calculator-card, .container, .table-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-top: 5px solid #007bff;
+            margin: 0 auto 30px auto;
+            width: 100%;
+        }
+        
+        .dashboard-card { max-width: 800px; text-align: center; }
+        .calculator-card, .container { max-width: 700px; }
+        .table-section { max-width: 1100px; }
+
+        h1, h2 { color: #2c3e50; font-weight: 700; margin-bottom: 20px; text-align: center;}
+        h3 { color: #2c3e50; font-weight: 600; margin-bottom: 25px; font-size: 22px; text-align: center; }
+        
+        .form-group, #pembagi-wrapper { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+        
+        input, select {
+            width: 100%; padding: 12px 15px; border: 1px solid #dce1e6;
+            border-radius: 8px; font-size: 15px; font-family: 'Poppins', sans-serif;
+            background-color: #f8faff; transition: all 0.3s ease; margin-bottom: 15px;
+        }
+        input:focus, select:focus {
+            border-color: #80bdff; outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,.25); background-color: #fff;
+        }
+
+        button.btn-hitung {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+            font-family: 'Poppins', sans-serif; margin-top: 10px;
+        }
+        button.btn-hitung:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,123,255,0.4); }
+        button.btn-hitung:disabled { background: #cccccc; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* Desain Presisi Grid */
+        #inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        
+        /* Hasil Kotak */
+        .result {
+            background-color: #f1f8ff; padding: 15px 20px; border-radius: 8px;
+            margin-top: 20px; border-left: 6px solid #28a745;
+        }
+        .hasil-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #ccc; font-size: 15px; color: #444; }
+        .hasil-item:last-child { border-bottom: none; }
+        .hasil-label { font-weight: 600; }
+        .hasil-value { font-weight: 700; color: #222; }
+        .total-highlight { font-weight: 700; color: #d9534f; font-size: 19px !important; margin-top: 15px !important; }
+
+        /* Tabel Data & Presisi */
+        .table-wrapper { overflow-x: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; margin-top: 25px; margin-bottom: 25px; background: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background-color: #007bff; color: white; font-weight: 600; padding: 12px 10px; }
+        td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #eee; }
+        tr:hover { background-color: #f8f9fa; }
+        
+        /* Tabel Tube Khusus */
+        .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .tables-grid td:first-child { text-align: left; font-weight: 600; color: #444; }
+        .header-tamanaco th { background-color: #FFF200; color: #333; font-size: 15px; border-bottom: none;}
+        .sub-tamanaco th { background-color: #fff985; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+        .header-impact th { background-color: #F79646; color: #fff; font-size: 15px; border-bottom: none;}
+        .sub-impact th { background-color: #fabc8c; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+        .header-suryya th { background-color: #92D050; color: #fff; font-size: 15px; border-bottom: none;}
+        .sub-suryya th { background-color: #c4e89f; color: #333; font-weight: 700; border-bottom: 2px solid #ccc;}
+
+        .catatan-pengunjung { background-color: #fff8e6; border: 1px solid #ffe08a; padding: 12px 16px; border-radius: 8px; color: #7a5c00; font-size: 14px; margin-bottom: 20px; text-align: center; }
+        .footer-info { text-align: center; margin-top: 40px; font-size: 13px; color: #888; }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media(max-width: 768px){
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .menu-toggle-btn { display: inline-block; }
+            #inputs { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-card">
-        <h1>🎛️ Sistem Kalkulasi SEMISOLID</h1>
-        <p class="subtitle">Silakan pilih menu perhitungan yang ingin Anda gunakan hari ini.</p>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            🎛️ SEMISOLID
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active-nav" onclick="bukaHalaman('beranda', this)">🏠 Beranda</li>
+            <li onclick="bukaHalaman('menu-tube', this)">📦 Hitung Tube</li>
+            <li onclick="bukaHalaman('menu-presisi', this)">🎯 Hitung Presisi</li>
+        </ul>
+    </nav>
 
-        <div class="menu-grid">
+    <main class="main-content">
+        <button class="menu-toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+        <div id="beranda" class="page-section active-section">
+            <div class="dashboard-card">
+                <h1>Selamat Datang</h1>
+                <p>Silakan pilih menu perhitungan pada sidebar di sebelah kiri.</p>
+            </div>
+            <div class="footer-info">&copy; 2026 Jefry Ifah Ferdiansyah</div>
+        </div>
+
+        <div id="menu-tube" class="page-section">
+            <div class="calculator-card">
+                <h2>📦 Kalkulator Hitung Tube</h2>
+                <div class="form-group">
+                    <label>Kategori Tube</label>
+                    <select id="kategori">
+                        <option value="TAMANACO">TAMANACO</option>
+                        <option value="IMPACT">IMPACT</option>
+                        <option value="SURYYA TUBAL INDONESIA">SURYYA TUBAL INDONESIA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Produk Obat</label>
+                    <select id="produk">
+                        <option value="Miconazole">Miconazole</option>
+                        <option value="Gentamycin">Gentamycin</option>
+                        <option value="Hydrocortison">Hydrocortison</option>
+                        <option value="Betamethasone">Betamethasone</option>
+                        <option value="Betason CR">Betason CR</option>
+                        <option value="Betason N">Betason N</option>
+                        <option value="Protofen">Protofen</option>
+                        <option value="Permethrine">Permethrine</option>
+                        <option value="Scabicid">Scabicid</option>
+                        <option value="Ketoconazole">Ketoconazole</option>
+                        <option value="Antihemoroid">Antihemoroid</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah BOX (Input)</label>
+                    <input type="number" id="inputBox" placeholder="Masukkan angka, contoh: 2" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Jumlah DUS (Input)</label>
+                    <input type="number" id="inputDus" placeholder="Masukkan angka, contoh: 2" min="0">
+                </div>
+                <button class="btn-hitung" onclick="hitungTube()">Hitung Hasil Sekarang</button>
+
+                <div class="result" id="hasilDivTube" style="display:none;">
+                    <p><strong>📊 Rincian Perhitungan:</strong></p>
+                    <p id="hasilBox"></p>
+                    <p id="hasilDus"></p>
+                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+                    <p class="total-highlight" id="hasilTotal"></p>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h3>📋 Tabel Data Acuan</h3>
+                <div class="tables-grid">
+                    <div class="table-wrapper">
+                        <table>
+                            <tr class="header-tamanaco"><th colspan="3">TAMANACO</th></tr>
+                            <tr class="sub-tamanaco"><th>Produk</th><th>BOX</th><th>DUS</th></tr>
+                            <tr><td>Miconazole</td><td>5590</td><td>559</td></tr>
+                            <tr><td>Gentamycin</td><td>7750</td><td>775</td></tr>
+                        </table>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <tr class="header-impact"><th colspan="3">IMPACT</th></tr>
+                            <tr class="sub-impact"><th>Produk</th><th>BOX</th><th>DUS</th></tr>
+                            <tr><td>Miconazole</td><td>2262</td><td>754</td></tr>
+                            <tr><td>Gentamycin</td><td>3162</td><td>1054</td></tr>
+                        </table>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <tr class="header-suryya"><th colspan="3">SURYYA TUBAL INDONESIA</th></tr>
+                            <tr class="sub-suryya"><th>Produk</th><th>BOX</th><th>DUS</th></tr>
+                            <tr><td>Gentamycin</td><td>3750</td><td>750</td></tr>
+                            </table>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-info">&copy; 2026 Jefry Ifah Ferdiansyah</div>
+        </div>
+
+        <div id="menu-presisi" class="page-section">
+            <div class="container">
+                <h2>Kalkulator Presisi <br> SEMISOLID</h2>
+                <div class="catatan-pengunjung">
+                    <strong>Catatan Penting:</strong> Pastikan Anda menggunakan TITIK (.) bukan KOMA (,) <br> Terima kasih.
+                </div>
+                
+                <div id="inputs"></div>
+
+                <div id="pembagi-wrapper">
+                  <select id="pembagi" onchange="bukaKunciTombol()" required>
+                    <option value="" disabled selected>Pilih Berat Timbangan</option>
+                    <option value="100">100 gram</option>
+                    <option value="20">20 Kg</option>
+                  </select>
+                </div>
+
+                <button class="btn-hitung" id="tombolHitungPresisi" onclick="hitungPresisi()" disabled>Hitung Presisi</button>
+
+                <div class="result">
+                    <div class="hasil-item">
+                        <div class="hasil-label">b (Rata-rata)</div>
+                        <div class="hasil-value" id="b-presisi"></div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>a</th><th>c = b-a</th><th>d = c²</th></tr>
+                        </thead>
+                        <tbody id="hasil-presisi-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="result">
+                    <div class="hasil-item"><div class="hasil-label">e (Σ d)</div><div class="hasil-value" id="e-presisi"></div></div>
+                    <div class="hasil-item"><div class="hasil-label">f (Varian)</div><div class="hasil-value" id="f-presisi"></div></div>
+                    <div class="hasil-item"><div class="hasil-label">g (√f)</div><div class="hasil-value" id="g-presisi"></div></div>
+                    <div class="hasil-item"><div class="hasil-label">h (Evaluasi)</div><div class="hasil-value" id="h-presisi"></div></div>
+                </div>
+            </div>
+            <div class="footer-info">&copy; 2026 Jefry Ifah Ferdiansyah</div>
+        </div>
+
+    </main>
+
+    <script>
+        /* ================= NAVIGATION LOGIC ================= */
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+
+        function bukaHalaman(idHalaman, elemenMenu) {
+            // Sembunyikan semua halaman
+            let pages = document.querySelectorAll(".page-section");
+            pages.forEach(page => page.classList.remove("active-section"));
             
-            <a href="hitung_tube.html" class="menu-item">
-                <div class="menu-icon">📦</div>
-                <div class="menu-title">Hitung Tube</div>
-                <p class="menu-desc">Kalkulasi jumlah Box dan Dus berdasarkan data acuan Tamanaco, Impact, & STI.</p>
-            </a>
+            // Tampilkan halaman yang dituju
+            document.getElementById(idHalaman).classList.add("active-section");
+            
+            // Atur class active di menu sidebar
+            let menus = document.querySelectorAll(".sidebar-menu li");
+            menus.forEach(menu => menu.classList.remove("active-nav"));
+            elemenMenu.classList.add("active-nav");
 
-            <a href="hitung_presisi.html" class="menu-item">
-                <div class="menu-icon">🎯</div>
-                <div class="menu-title">Hitung Presisi</div>
-                <p class="menu-desc">Kalkulasi perhitungan timbangan PRESISI setiap hari SENIN / Awal Minggu.</p>
-            </a>
+            // Tutup sidebar otomatis di mode HP setelah klik
+            if(window.innerWidth <= 768) {
+                document.getElementById("sidebar").classList.remove("active");
+            }
+        }
 
-            <!-- dihilangkan dulu
-            <a href="link2.html" class="menu-item">
-                <div class="menu-icon">📊</div>
-                <div class="menu-title">Laporan Data</div>
-                <p class="menu-desc">Rekapitulasi hasil perhitungan dan riwayat pemakaian barang.</p>
-            </a>
-            -->
+        /* ================= LOGIKA HITUNG TUBE ================= */
+        const dataMaster = {
+            "TAMANACO": { "Miconazole": { box: 5590, dus: 559 }, "Gentamycin": { box: 7750, dus: 775 }, "Hydrocortison": { box: 7750, dus: 775 }, "Betamethasone": { box: 7750, dus: 775 }, "Betason CR": { box: 7750, dus: 775 }, "Betason N": { box: 7750, dus: 775 }, "Protofen": { box: 10000, dus: 1000 }, "Permethrine": { box: 5590, dus: 559 }, "Scabicid": { box: 5590, dus: 559 }, "Ketoconazole": { box: 5590, dus: 559 }, "Antihemoroid": { box: 10000, dus: 1000 } },
+            "IMPACT": { "Miconazole": { box: 2262, dus: 754 }, "Gentamycin": { box: 3162, dus: 1054 }, "Hydrocortison": { box: 4216, dus: 1054 }, "Betamethasone": { box: 4216, dus: 1054 }, "Betason CR": { box: 4216, dus: 1054 }, "Betason N": { box: 4216, dus: 1054 }, "Protofen": { box: 10000, dus: 1000 }, "Permethrine": { box: 2262, dus: 754 }, "Scabicid": { box: 2262, dus: 754 }, "Ketoconazole": { box: 2262, dus: 754 }, "Antihemoroid": { box: 10000, dus: 1000 } },
+            "SURYYA TUBAL INDONESIA": { "Miconazole": { box: 0, dus: 0 }, "Gentamycin": { box: 3750, dus: 750 }, "Hydrocortison": { box: 3750, dus: 750 }, "Betamethasone": { box: 3750, dus: 750 }, "Betason CR": { box: 3750, dus: 750 }, "Betason N": { box: 3750, dus: 750 }, "Protofen": { box: 10000, dus: 1000 }, "Permethrine": { box: 0, dus: 0 }, "Scabicid": { box: 0, dus: 0 }, "Ketoconazole": { box: 0, dus: 0 }, "Antihemoroid": { box: 10000, dus: 1000 } }
+        };
 
-        </div>
+        function hitungTube() { // Diberi nama baru agar tidak konflik
+            const kategori = document.getElementById("kategori").value;
+            const produk = document.getElementById("produk").value;
+            const inputBox = parseInt(document.getElementById("inputBox").value) || 0;
+            const inputDus = parseInt(document.getElementById("inputDus").value) || 0;
 
-        <div class="footer-info">
-            &copy; 2026 Jefry Ifah Ferdiansyah
-        </div>
-    </div>
+            const referensi = dataMaster[kategori][produk];
+            const hasilDiv = document.getElementById("hasilDivTube");
 
+            if (referensi.box === 0 && referensi.dus === 0) {
+                document.getElementById("hasilBox").innerHTML = `<span style="color: #dc3545;">⚠️ Data tidak tersedia untuk produk <b>${produk}</b> di kategori <b>${kategori}</b></span>`;
+                document.getElementById("hasilDus").innerText = "";
+                document.getElementById("hasilTotal").innerText = "";
+                hasilDiv.style.borderLeftColor = "#dc3545"; 
+                hasilDiv.style.backgroundColor = "#fff3f4";
+                hasilDiv.style.display = "block";
+                return;
+            }
+
+            const totalBox = inputBox * referensi.box;
+            const totalDus = inputDus * referensi.dus;
+            const totalSemua = totalBox + totalDus;
+
+            document.getElementById("hasilBox").innerHTML = `Total BOX: <b>${inputBox}</b> × ${referensi.box} = <b>${totalBox.toLocaleString('id-ID')}</b>`;
+            document.getElementById("hasilDus").innerHTML = `Total DUS: <b>${inputDus}</b> × ${referensi.dus} = <b>${totalDus.toLocaleString('id-ID')}</b>`;
+            document.getElementById("hasilTotal").innerText = `Grand Total Keseluruhan: ${totalSemua.toLocaleString('id-ID')}`;
+
+            hasilDiv.style.borderLeftColor = "#28a745"; 
+            hasilDiv.style.backgroundColor = "#f1f8ff";
+            hasilDiv.style.display = "block";
+        }
+
+
+        /* ================= LOGIKA HITUNG PRESISI ================= */
+        // Buat 10 input otomatis
+        const inputsDiv = document.getElementById("inputs");
+        for(let i=0;i<10;i++){
+            inputsDiv.innerHTML += `<input type="text" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
+        }
+
+        function truncate(num, decimalPlaces){
+            let factor = Math.pow(10, decimalPlaces);
+            return Math.trunc(num * factor) / factor;
+        }
+
+        function bukaKunciTombol() {
+            let nilaiDropdown = document.getElementById("pembagi").value;
+            let tombol = document.getElementById("tombolHitungPresisi");
+            if (nilaiDropdown !== "") { tombol.disabled = false; }
+        }
+
+        function hitungPresisi(){ // Diberi nama baru agar tidak konflik
+            let a=[];
+            for(let i=0;i<10;i++){
+                let v=parseFloat(document.getElementById("a"+i).value);
+                if(isNaN(v)){ alert("Semua angka harus diisi!"); return; }
+                a.push(v);
+            }
+
+            let sum=a.reduce((x,y)=>x+y,0);
+            let b = sum / 10;
+            let bTrunc = Math.trunc(b * 1000) / 1000;
+
+            document.getElementById("b-presisi").innerText = bTrunc.toFixed(3);
+            let tbody=document.getElementById("hasil-presisi-body");
+            tbody.innerHTML="";
+
+            let e=0;
+            for(let i=0;i<10;i++){
+                let c = truncate(bTrunc - a[i], 3);
+                let d = truncate(c * c, 6);
+                e += d;
+                tbody.innerHTML+=`<tr><td>${a[i]}</td><td>${c.toFixed(3)}</td><td>${d.toFixed(6)}</td></tr>`;
+            }
+
+            let f=e/10;
+            let g=Math.sqrt(f);
+            let pembagi = parseFloat(document.getElementById("pembagi").value);
+
+            if (isNaN(pembagi) || pembagi === 0) {
+                alert("Nilai pembagi harus diisi dan tidak boleh 0!"); return;
+            }
+
+            let h = (2 * g / pembagi) * 100;
+
+            document.getElementById("e-presisi").innerText=e.toFixed(6);
+            document.getElementById("f-presisi").innerText=f.toFixed(7);
+            document.getElementById("g-presisi").innerText=g.toFixed(7);
+            document.getElementById("h-presisi").innerText=h.toFixed(7);
+        }
+    </script>
 </body>
 </html>
