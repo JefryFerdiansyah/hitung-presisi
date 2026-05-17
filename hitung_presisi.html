@@ -196,6 +196,15 @@ tr:hover {
     font-size: 13px;
     color: #888;
 }
+
+/* Desain saat tombol sedang dikunci (disabled) */
+button:disabled {
+    background: #cccccc; /* Warna abu-abu */
+    cursor: not-allowed; /* Kursor berubah jadi tanda dilarang */
+    box-shadow: none;
+    transform: none;
+}
+
 </style>
 </head>
 
@@ -211,14 +220,14 @@ tr:hover {
 <div id="inputs"></div>
 
 <p>
-  <select id="pembagi" required>
+  <select id="pembagi" onchange="bukaKunciTombol()" required>
     <option value="" disabled selected>Pilih Berat Tiimbangan</option>
     <option value="100">100 gram</option>
     <option value="20">20 Kg</option>
   </select>
 </p>
 
-<button onclick="hitung()">Hitung</button>
+<button id="tombolHitung" onclick="hitung()" disabled>Hitung</button>
 
 <div class="result">
     <div class="hasil-item">
@@ -278,6 +287,17 @@ for(let i=0;i<10;i++){
 function truncate(num, decimalPlaces){
     let factor = Math.pow(10, decimalPlaces);
     return Math.trunc(num * factor) / factor;
+}
+
+function bukaKunciTombol() {
+    // Ambil nilai dari dropdown
+    let nilaiDropdown = document.getElementById("pembagi").value;
+    let tombol = document.getElementById("tombolHitung");
+
+    // Jika nilainya tidak kosong, maka tombol dinyalakan (disabled = false)
+    if (nilaiDropdown !== "") {
+        tombol.disabled = false;
+    }
 }
 
 function hitung(){
