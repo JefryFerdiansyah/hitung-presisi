@@ -188,6 +188,14 @@ tr:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* Footer Info */
+.footer-info {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 13px;
+    color: #888;
+}
 </style>
 </head>
 
@@ -253,9 +261,11 @@ tr:hover {
         <div class="hasil-label">h (Evaluasi)</div>
         <div class="hasil-value" id="h"></div>
     </div>
-
+    
 </div>
-
+    <div class="footer-info">
+        &copy; 2026 Jefry Ifah Ferdiansyah
+    </div>
 </div>
 
 <script>
@@ -337,7 +347,7 @@ let h = (2 * g / pembagi) * 100;
     document.getElementById("h").innerText=h.toFixed(7);
 }
 </script>
-
+    
 </body>
 </html>
 
