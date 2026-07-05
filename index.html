@@ -552,63 +552,52 @@
         }
 
 
-        /* ================= LOGIKA HITUNG PRESISI ================= */
-        // Buat 10 input otomatis
-        const inputsDiv = document.getElementById("inputs");
-        for(let i=0;i<10;i++){
-            inputsDiv.innerHTML += `<input type="text" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
+        function hitungPresisi(){ 
+    let a = [];
+    for(let i = 0; i < 10; i++){
+        // PERBAIKAN: Ubah koma menjadi titik sebelum diparsing
+        let rawValue = document.getElementById("a"+i).value;
+        let v = parseFloat(rawValue.replace(',', '.'));
+        
+        if(isNaN(v)){ 
+            alert("Semua angka harus diisi!"); 
+            return; 
         }
+        a.push(v);
+    }
 
-        function truncate(num, decimalPlaces){
-            let factor = Math.pow(10, decimalPlaces);
-            return Math.trunc(num * factor) / factor;
-        }
+    let sum = a.reduce((x, y) => x + y, 0);
+    let b = sum / 10;
+    let bTrunc = Math.trunc(b * 1000) / 1000;
 
-        function bukaKunciTombol() {
-            let nilaiDropdown = document.getElementById("pembagi").value;
-            let tombol = document.getElementById("tombolHitungPresisi");
-            if (nilaiDropdown !== "") { tombol.disabled = false; }
-        }
+    document.getElementById("b-presisi").innerText = bTrunc.toFixed(3);
+    let tbody = document.getElementById("hasil-presisi-body");
+    tbody.innerHTML = "";
 
-        function hitungPresisi(){ // Diberi nama baru agar tidak konflik
-            let a=[];
-            for(let i=0;i<10;i++){
-                let v=parseFloat(document.getElementById("a"+i).value);
-                if(isNaN(v)){ alert("Semua angka harus diisi!"); return; }
-                a.push(v);
-            }
+    let e = 0;
+    for(let i = 0; i < 10; i++){
+        let c = truncate(bTrunc - a[i], 3);
+        let d = truncate(c * c, 6);
+        e += d;
+        tbody.innerHTML += `<tr><td>${a[i]}</td><td>${c.toFixed(3)}</td><td>${d.toFixed(6)}</td></tr>`;
+    }
 
-            let sum=a.reduce((x,y)=>x+y,0);
-            let b = sum / 10;
-            let bTrunc = Math.trunc(b * 1000) / 1000;
+    let f = e / 10;
+    let g = Math.sqrt(f);
+    let pembagi = parseFloat(document.getElementById("pembagi").value.replace(',', '.')); // Sekalian diperbaiki di sini
 
-            document.getElementById("b-presisi").innerText = bTrunc.toFixed(3);
-            let tbody=document.getElementById("hasil-presisi-body");
-            tbody.innerHTML="";
+    if (isNaN(pembagi) || pembagi === 0) {
+        alert("Nilai pembagi harus diisi dan tidak boleh 0!"); 
+        return;
+    }
 
-            let e=0;
-            for(let i=0;i<10;i++){
-                let c = truncate(bTrunc - a[i], 3);
-                let d = truncate(c * c, 6);
-                e += d;
-                tbody.innerHTML+=`<tr><td>${a[i]}</td><td>${c.toFixed(3)}</td><td>${d.toFixed(6)}</td></tr>`;
-            }
+    let h = (2 * g / pembagi) * 100;
 
-            let f=e/10;
-            let g=Math.sqrt(f);
-            let pembagi = parseFloat(document.getElementById("pembagi").value);
-
-            if (isNaN(pembagi) || pembagi === 0) {
-                alert("Nilai pembagi harus diisi dan tidak boleh 0!"); return;
-            }
-
-            let h = (2 * g / pembagi) * 100;
-
-            document.getElementById("e-presisi").innerText=e.toFixed(6);
-            document.getElementById("f-presisi").innerText=f.toFixed(7);
-            document.getElementById("g-presisi").innerText=g.toFixed(7);
-            document.getElementById("h-presisi").innerText=h.toFixed(7);
-        }
+    document.getElementById("e-presisi").innerText = e.toFixed(6);
+    document.getElementById("f-presisi").innerText = f.toFixed(7);
+    document.getElementById("g-presisi").innerText = g.toFixed(7);
+    document.getElementById("h-presisi").innerText = h.toFixed(7);
+}
 
         /* ================= LOGIKA SLIDER BERANDA ================= */
         let sliderIndex = 0;
