@@ -552,6 +552,24 @@
         }
 
 
+        /* ================= LOGIKA HITUNG PRESISI ================= */
+        // Buat 10 input otomatis
+        const inputsDiv = document.getElementById("inputs");
+        for(let i=0;i<10;i++){
+            inputsDiv.innerHTML += `<input type="text" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
+        }
+
+        function truncate(num, decimalPlaces){
+            let factor = Math.pow(10, decimalPlaces);
+            return Math.trunc(num * factor) / factor;
+        }
+
+        function bukaKunciTombol() {
+            let nilaiDropdown = document.getElementById("pembagi").value;
+            let tombol = document.getElementById("tombolHitungPresisi");
+            if (nilaiDropdown !== "") { tombol.disabled = false; }
+        }
+
         function hitungPresisi(){ 
     let a = [];
     for(let i = 0; i < 10; i++){
