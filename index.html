@@ -119,6 +119,13 @@
             border-color: #80bdff; outline: none;
             box-shadow: 0 0 0 3px rgba(0,123,255,.25); background-color: #fff;
         }
+        /* Penanda kolom yang isinya tidak valid */
+        input.input-error {
+            border-color: #dc3545; background-color: #fff3f4;
+        }
+        input.input-error:focus {
+            box-shadow: 0 0 0 3px rgba(220,53,69,.25);
+        }
 
         button.btn-hitung {
             width: 100%; padding: 14px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -348,11 +355,11 @@
                 </div>
                 <div class="form-group">
                     <label>Jumlah BOX (Input)</label>
-                    <input type="number" id="inputBox" placeholder="Masukkan angka, contoh: 2" min="0">
+                    <input type="text" inputmode="decimal" autocomplete="off" id="inputBox" placeholder="Masukkan angka, contoh: 2 atau 2,5">
                 </div>
                 <div class="form-group">
                     <label>Jumlah DUS (Input)</label>
-                    <input type="number" id="inputDus" placeholder="Masukkan angka, contoh: 2" min="0">
+                    <input type="text" inputmode="decimal" autocomplete="off" id="inputDus" placeholder="Masukkan angka, contoh: 2 atau 2,5">
                 </div>
                 <button class="btn-hitung" onclick="hitungTube()">Hitung Hasil Sekarang</button>
 
@@ -444,7 +451,8 @@
             <div class="container">
                 <h2>Kalkulator Presisi <br> SEMISOLID</h2>
                 <div class="catatan-pengunjung">
-                    <strong>Catatan Penting:</strong> Pastikan Anda menggunakan TITIK (.) bukan KOMA (,) <br> Terima kasih.
+                    <strong>Catatan:</strong> Desimal boleh memakai TITIK (.) atau KOMA (,), contoh <b>10.5</b> atau <b>10,5</b>. <br>
+                    Jangan memakai pemisah ribuan. Terima kasih.
                 </div>
                 
                 <div id="inputs"></div>
@@ -488,6 +496,69 @@
     </main>
 
     <script>
+        /* ================= UTILITAS ANGKA (KOMA / TITIK) ================= */
+
+        /**
+         * Mengubah teks input menjadi angka dengan aman.
+         * Mengembalikan NaN jika kosong atau formatnya tidak valid.
+         *
+         * Aturan:
+         *  - "10.5"      -> 10.5     (titik = desimal)
+         *  - "10,5"      -> 10.5     (koma  = desimal)
+         *  - "1.234"     -> 1.234    (satu pemisah selalu dianggap desimal, bukan ribuan)
+         *  - "1.234,5"   -> 1234.5   (dua jenis pemisah: yang terakhir = desimal)
+         *  - "1,234.5"   -> 1234.5
+         *  - "1.2.3", "12abc", "--5", "1,2,3" -> NaN (ditolak, bukan ditebak)
+         */
+        function parseAngka(teks) {
+            if (teks === null || teks === undefined) return NaN;
+
+            let s = String(teks).trim().replace(/\s+/g, "");
+            if (s === "") return NaN;
+
+            // Hanya boleh: tanda +/- di awal, digit, titik, koma
+            if (!/^[+-]?[\d.,]+$/.test(s)) return NaN;
+
+            const jumlahTitik  = (s.match(/\./g) || []).length;
+            const jumlahKoma   = (s.match(/,/g)  || []).length;
+
+            if (jumlahTitik > 0 && jumlahKoma > 0) {
+                // Dua jenis pemisah: yang paling akhir = desimal, yang lain = ribuan
+                const desimal = s.lastIndexOf(".") > s.lastIndexOf(",") ? "." : ",";
+                const ribuan  = desimal === "." ? "," : ".";
+                const jumlahDesimal = desimal === "." ? jumlahTitik : jumlahKoma;
+                if (jumlahDesimal > 1) return NaN;
+                s = s.split(ribuan).join("").replace(desimal, ".");
+            } else {
+                // Satu jenis pemisah: maksimal satu kali muncul
+                if (jumlahTitik + jumlahKoma > 1) return NaN;
+                s = s.replace(",", ".");
+            }
+
+            // Validasi akhir bentuk angka: 5, 5., .5, 5.25, -5.25
+            if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+
+            const n = Number(s);
+            return Number.isFinite(n) ? n : NaN;
+        }
+
+        /**
+         * Memotong (bukan membulatkan) angka ke sejumlah desimal,
+         * tanpa terkena galat floating point.
+         * Contoh bug lama: 5.1 - 4.8 = 0.2999999999999998 -> dipotong jadi 0.299.
+         * Sekarang hasilnya 0.300.
+         */
+        function truncate(num, decimalPlaces) {
+            const factor = Math.pow(10, decimalPlaces);
+            // Bulatkan dulu pada presisi sangat halus untuk membuang noise floating point
+            const bersih = Math.round(num * factor * 1e6) / 1e6;
+            return Math.trunc(bersih) / factor;
+        }
+
+        function formatAngka(n) {
+            return n.toLocaleString("id-ID", { maximumFractionDigits: 2 });
+        }
+
         /* ================= NAVIGATION LOGIC ================= */
         function toggleSidebar() {
             document.getElementById("sidebar").classList.toggle("active");
@@ -519,22 +590,50 @@
             "SURYYA TUBAL INDONESIA": { "Miconazole": { box: 2152, dus: 538 }, "Gentamycin": { box: 3750, dus: 750 }, "Hydrocortison": { box: 3750, dus: 750 }, "Betamethasone": { box: 3750, dus: 750 }, "Betason CR": { box: 3750, dus: 750 }, "Betason N": { box: 3750, dus: 750 }, "Protofen": { box: 10000, dus: 1000 }, "Permethrine": { box: 0, dus: 0 }, "Scabicid": { box: 0, dus: 0 }, "Ketoconazole": { box: 0, dus: 0 }, "Antihemoroid": { box: 10000, dus: 1000 } }
         };
 
-        function hitungTube() { // Diberi nama baru agar tidak konflik
+        function tampilkanPesanTube(pesan) {
+            const hasilDiv = document.getElementById("hasilDivTube");
+            document.getElementById("hasilBox").innerHTML = `<span style="color: #dc3545;">⚠️ ${pesan}</span>`;
+            document.getElementById("hasilDus").innerText = "";
+            document.getElementById("hasilTotal").innerText = "";
+            hasilDiv.style.borderLeftColor = "#dc3545";
+            hasilDiv.style.backgroundColor = "#fff3f4";
+            hasilDiv.style.display = "block";
+        }
+
+        function hitungTube() {
             const kategori = document.getElementById("kategori").value;
             const produk = document.getElementById("produk").value;
-            const inputBox = parseInt(document.getElementById("inputBox").value) || 0;
-            const inputDus = parseInt(document.getElementById("inputDus").value) || 0;
-
-            const referensi = dataMaster[kategori][produk];
+            const elBox = document.getElementById("inputBox");
+            const elDus = document.getElementById("inputDus");
             const hasilDiv = document.getElementById("hasilDivTube");
 
+            elBox.classList.remove("input-error");
+            elDus.classList.remove("input-error");
+
+            const referensi = dataMaster[kategori][produk];
+
             if (referensi.box === 0 && referensi.dus === 0) {
-                document.getElementById("hasilBox").innerHTML = `<span style="color: #dc3545;">⚠️ Data tidak tersedia untuk produk <b>${produk}</b> di kategori <b>${kategori}</b></span>`;
-                document.getElementById("hasilDus").innerText = "";
-                document.getElementById("hasilTotal").innerText = "";
-                hasilDiv.style.borderLeftColor = "#dc3545"; 
-                hasilDiv.style.backgroundColor = "#fff3f4";
-                hasilDiv.style.display = "block";
+                tampilkanPesanTube(`Data tidak tersedia untuk produk <b>${produk}</b> di kategori <b>${kategori}</b>`);
+                return;
+            }
+
+            // Kolom kosong dianggap 0, tetapi isi yang tidak valid ditolak (tidak diam-diam jadi 0)
+            const teksBox = elBox.value.trim();
+            const teksDus = elDus.value.trim();
+            const inputBox = teksBox === "" ? 0 : parseAngka(teksBox);
+            const inputDus = teksDus === "" ? 0 : parseAngka(teksDus);
+
+            let ada_error = false;
+            if (isNaN(inputBox) || inputBox < 0) { elBox.classList.add("input-error"); ada_error = true; }
+            if (isNaN(inputDus) || inputDus < 0) { elDus.classList.add("input-error"); ada_error = true; }
+
+            if (ada_error) {
+                tampilkanPesanTube("Isi BOX / DUS tidak valid. Gunakan angka positif, contoh: <b>2</b>, <b>2.5</b>, atau <b>2,5</b>.");
+                return;
+            }
+
+            if (teksBox === "" && teksDus === "") {
+                tampilkanPesanTube("Isi minimal salah satu: jumlah BOX atau jumlah DUS.");
                 return;
             }
 
@@ -542,9 +641,9 @@
             const totalDus = inputDus * referensi.dus;
             const totalSemua = totalBox + totalDus;
 
-            document.getElementById("hasilBox").innerHTML = `Total BOX: <b>${inputBox}</b> × ${referensi.box} = <b>${totalBox.toLocaleString('id-ID')}</b>`;
-            document.getElementById("hasilDus").innerHTML = `Total DUS: <b>${inputDus}</b> × ${referensi.dus} = <b>${totalDus.toLocaleString('id-ID')}</b>`;
-            document.getElementById("hasilTotal").innerText = `Grand Total Keseluruhan: ${totalSemua.toLocaleString('id-ID')}`;
+            document.getElementById("hasilBox").innerHTML = `Total BOX: <b>${formatAngka(inputBox)}</b> × ${referensi.box} = <b>${formatAngka(totalBox)}</b>`;
+            document.getElementById("hasilDus").innerHTML = `Total DUS: <b>${formatAngka(inputDus)}</b> × ${referensi.dus} = <b>${formatAngka(totalDus)}</b>`;
+            document.getElementById("hasilTotal").innerText = `Grand Total Keseluruhan: ${formatAngka(totalSemua)}`;
 
             hasilDiv.style.borderLeftColor = "#28a745"; 
             hasilDiv.style.backgroundColor = "#f1f8ff";
@@ -553,15 +652,10 @@
 
 
         /* ================= LOGIKA HITUNG PRESISI ================= */
-        // Buat 10 input otomatis
+        // Buat 10 input otomatis (type text + inputmode decimal agar keyboard HP menampilkan angka)
         const inputsDiv = document.getElementById("inputs");
-        for(let i=0;i<10;i++){
-            inputsDiv.innerHTML += `<input type="text" step="any" id="a${i}" placeholder="Hasil Timbang ${i+1}">`;
-        }
-
-        function truncate(num, decimalPlaces){
-            let factor = Math.pow(10, decimalPlaces);
-            return Math.trunc(num * factor) / factor;
+        for (let i = 0; i < 10; i++) {
+            inputsDiv.innerHTML += `<input type="text" inputmode="decimal" autocomplete="off" id="a${i}" placeholder="Hasil Timbang ${i + 1}">`;
         }
 
         function bukaKunciTombol() {
@@ -570,52 +664,72 @@
             if (nilaiDropdown !== "") { tombol.disabled = false; }
         }
 
-        function hitungPresisi(){ 
-    let a = [];
-    for(let i = 0; i < 10; i++){
-        // PERBAIKAN: Ubah koma menjadi titik sebelum diparsing
-        let rawValue = document.getElementById("a"+i).value;
-        let v = parseFloat(rawValue.replace(',', '.'));
-        
-        if(isNaN(v)){ 
-            alert("Semua angka harus diisi!"); 
-            return; 
+        function kosongkanHasilPresisi() {
+            ["b-presisi", "e-presisi", "f-presisi", "g-presisi", "h-presisi"].forEach(id => {
+                document.getElementById(id).innerText = "";
+            });
+            document.getElementById("hasil-presisi-body").innerHTML = "";
         }
-        a.push(v);
-    }
 
-    let sum = a.reduce((x, y) => x + y, 0);
-    let b = sum / 10;
-    let bTrunc = Math.trunc(b * 1000) / 1000;
+        function hitungPresisi() {
+            // 1. Validasi pembagi lebih dulu
+            const pembagi = parseAngka(document.getElementById("pembagi").value);
+            if (isNaN(pembagi) || pembagi <= 0) {
+                kosongkanHasilPresisi();
+                alert("Pilih berat timbangan terlebih dahulu.");
+                return;
+            }
 
-    document.getElementById("b-presisi").innerText = bTrunc.toFixed(3);
-    let tbody = document.getElementById("hasil-presisi-body");
-    tbody.innerHTML = "";
+            // 2. Baca & validasi 10 input
+            const a = [];
+            const kolomSalah = [];
+            for (let i = 0; i < 10; i++) {
+                const el = document.getElementById("a" + i);
+                el.classList.remove("input-error");
+                const v = parseAngka(el.value);
+                if (isNaN(v)) {
+                    el.classList.add("input-error");
+                    kolomSalah.push(i + 1);
+                }
+                a.push(v);
+            }
 
-    let e = 0;
-    for(let i = 0; i < 10; i++){
-        let c = truncate(bTrunc - a[i], 3);
-        let d = truncate(c * c, 6);
-        e += d;
-        tbody.innerHTML += `<tr><td>${a[i]}</td><td>${c.toFixed(3)}</td><td>${d.toFixed(6)}</td></tr>`;
-    }
+            if (kolomSalah.length > 0) {
+                kosongkanHasilPresisi();
+                alert(
+                    "Kolom nomor " + kolomSalah.join(", ") + " kosong atau formatnya tidak valid.\n" +
+                    "Gunakan angka dengan titik atau koma sebagai desimal, contoh: 10.5 atau 10,5."
+                );
+                document.getElementById("a" + (kolomSalah[0] - 1)).focus();
+                return;
+            }
 
-    let f = e / 10;
-    let g = Math.sqrt(f);
-    let pembagi = parseFloat(document.getElementById("pembagi").value.replace(',', '.')); // Sekalian diperbaiki di sini
+            // 3. Perhitungan
+            const sum = a.reduce((x, y) => x + y, 0);
+            const b = sum / 10;
+            const bTrunc = truncate(b, 3);
 
-    if (isNaN(pembagi) || pembagi === 0) {
-        alert("Nilai pembagi harus diisi dan tidak boleh 0!"); 
-        return;
-    }
+            document.getElementById("b-presisi").innerText = bTrunc.toFixed(3);
+            const tbody = document.getElementById("hasil-presisi-body");
+            tbody.innerHTML = "";
 
-    let h = (2 * g / pembagi) * 100;
+            let e = 0;
+            for (let i = 0; i < 10; i++) {
+                const c = truncate(bTrunc - a[i], 3);
+                const d = truncate(c * c, 6);
+                e += d;
+                tbody.innerHTML += `<tr><td>${a[i]}</td><td>${c.toFixed(3)}</td><td>${d.toFixed(6)}</td></tr>`;
+            }
 
-    document.getElementById("e-presisi").innerText = e.toFixed(6);
-    document.getElementById("f-presisi").innerText = f.toFixed(7);
-    document.getElementById("g-presisi").innerText = g.toFixed(7);
-    document.getElementById("h-presisi").innerText = h.toFixed(7);
-}
+            const f = e / 10;
+            const g = Math.sqrt(f);
+            const h = (2 * g / pembagi) * 100;
+
+            document.getElementById("e-presisi").innerText = e.toFixed(6);
+            document.getElementById("f-presisi").innerText = f.toFixed(7);
+            document.getElementById("g-presisi").innerText = g.toFixed(7);
+            document.getElementById("h-presisi").innerText = h.toFixed(7);
+        }
 
         /* ================= LOGIKA SLIDER BERANDA ================= */
         let sliderIndex = 0;
